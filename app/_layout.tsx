@@ -1,12 +1,12 @@
-import { Stack } from "expo-router";
-import { AuthProvider } from "../lib/context/AuthContext";
-import { TaskProvider } from "../lib/context/TaskContext";
+import { Slot } from "expo-router";
+import { TaskProvider } from "@/lib/context/TaskContext";
+import { AuthProvider } from "@/lib/context/AuthContext";
 
 export default function RootLayout() {
   return (
     <TaskProvider>
       <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Slot />
       </AuthProvider>
     </TaskProvider>
   );
