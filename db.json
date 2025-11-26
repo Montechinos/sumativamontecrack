@@ -1,0 +1,22 @@
+{
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Terminar informe mensual",
+        "description": "Preparar el informe con los datos de enero",
+        "completed": false,
+        "createdAt": "2025-11-26T10:00:00Z"
+      },
+      {
+        "id": "2",
+        "title": "Comprar materiales",
+        "description": "Comprar cartulinas y marcadores",
+        "completed": true,
+        "createdAt": "2025-11-26T11:00:00Z"
+      }
+    ],
+    "profile": {
+      "name": "Mateo"
+    }
+  }
+  
