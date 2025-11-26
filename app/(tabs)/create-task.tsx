@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-}
+import { useTasks } from '@/lib/context/TaskContext';
+import { router } from 'expo-router';
 
 export default function CreateTaskScreen() {
+  const { addTask } = useTasks();  // ← IMPORTANTE
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState({ title: '', description: '' });
@@ -17,7 +14,7 @@ export default function CreateTaskScreen() {
     return alphanumericRegex.test(text);
   };
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     let valid = true;
     const newErrors = { title: '', description: '' };
 
@@ -39,22 +36,19 @@ export default function CreateTaskScreen() {
 
     setErrors(newErrors);
 
-    if (valid) {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        title: title.trim(),
-        description: description.trim()
-      };
-      
-      console.log('Tarea creada:', newTask);
-      Alert.alert('Éxito', 'Tarea creada correctamente');
-      
-      // Limpiar formulario
-      setTitle('');
-      setDescription('');
-      
-      // Aquí guardarías en el Context/Redux y llamarías a la API
-    }
+    if (!valid) return;
+
+    // 👇 **GUARDAR TAREA EN EL CONTEXTO**
+    await addTask({
+      title: title.trim(),
+      description: description.trim(),
+      completed: false
+    });
+
+    Alert.alert('Éxito', 'Tarea creada correctamente');
+
+    // Volver al tab principal
+    router.replace('/(tabs)');
   };
 
   return (
@@ -116,40 +110,16 @@ export default function CreateTaskScreen() {
             ) : null}
           </View>
 
-          <View className="space-y-3">
-            <TouchableOpacity
-              className="w-full bg-gray-900 py-4 rounded-xl"
-              onPress={handleCreateTask}
-              activeOpacity={0.8}
-            >
-              <Text className="text-white text-center font-semibold text-base">
-                Crear Tarea
-              </Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            className="w-full bg-gray-900 py-4 rounded-xl"
+            onPress={handleCreateTask}
+            activeOpacity={0.8}
+          >
+            <Text className="text-white text-center font-semibold text-base">
+              Crear Tarea
+            </Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              className="w-full bg-gray-100 py-4 rounded-xl"
-              onPress={() => {
-                setTitle('');
-                setDescription('');
-                setErrors({ title: '', description: '' });
-              }}
-              activeOpacity={0.8}
-            >
-              <Text className="text-gray-700 text-center font-medium text-base">
-                Cancelar
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View className="mt-6 p-4 bg-blue-50 rounded-xl">
-          <Text className="text-xs text-blue-800 font-medium mb-1">
-            💡 Recordatorio
-          </Text>
-          <Text className="text-xs text-blue-700">
-            Solo se permiten caracteres alfanuméricos en título y descripción
-          </Text>
         </View>
       </View>
     </ScrollView>

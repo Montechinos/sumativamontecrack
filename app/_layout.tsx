@@ -1,14 +1,13 @@
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { Stack } from "expo-router";
+import { AuthProvider } from "../lib/context/AuthContext";
+import { TaskProvider } from "../lib/context/TaskContext";
 
 export default function RootLayout() {
   return (
-    <>
-      <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    </>
+    <TaskProvider>
+      <AuthProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </AuthProvider>
+    </TaskProvider>
   );
 }

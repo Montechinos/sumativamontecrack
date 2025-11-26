@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { Link } from 'expo-router';
+import { useAuth } from '@/lib/context/AuthContext';
 
 export default function RegisterScreen() {
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,6 +17,7 @@ export default function RegisterScreen() {
     password: '',
     confirmPassword: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -26,7 +29,7 @@ export default function RegisterScreen() {
     return alphanumericRegex.test(text);
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     let valid = true;
     const newErrors = { name: '', email: '', password: '', confirmPassword: '' };
 
@@ -65,8 +68,15 @@ export default function RegisterScreen() {
     setErrors(newErrors);
 
     if (valid) {
-      console.log('Registro exitoso', formData);
-      // router.push('/(tabs)') - Navegar a la app principal
+      setIsSubmitting(true);
+      try {
+        await register(formData.name, formData.email, formData.password);
+        // La navegación se maneja automáticamente en el Context
+      } catch (error) {
+        Alert.alert('Error', 'No se pudo completar el registro');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -100,6 +110,7 @@ export default function RegisterScreen() {
                   setFormData({ ...formData, name: text });
                   setErrors({ ...errors, name: '' });
                 }}
+                editable={!isSubmitting}
               />
               {errors.name ? (
                 <Text className="text-xs text-red-500 mt-1.5">{errors.name}</Text>
@@ -121,6 +132,7 @@ export default function RegisterScreen() {
                 }}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!isSubmitting}
               />
               {errors.email ? (
                 <Text className="text-xs text-red-500 mt-1.5">{errors.email}</Text>
@@ -141,6 +153,7 @@ export default function RegisterScreen() {
                   setErrors({ ...errors, password: '' });
                 }}
                 secureTextEntry
+                editable={!isSubmitting}
               />
               {errors.password ? (
                 <Text className="text-xs text-red-500 mt-1.5">{errors.password}</Text>
@@ -161,6 +174,7 @@ export default function RegisterScreen() {
                   setErrors({ ...errors, confirmPassword: '' });
                 }}
                 secureTextEntry
+                editable={!isSubmitting}
               />
               {errors.confirmPassword ? (
                 <Text className="text-xs text-red-500 mt-1.5">{errors.confirmPassword}</Text>
@@ -168,19 +182,22 @@ export default function RegisterScreen() {
             </View>
 
             <TouchableOpacity
-              className="w-full bg-gray-900 py-4 rounded-xl mt-2"
+              className={`w-full py-4 rounded-xl mt-2 ${
+                isSubmitting ? 'bg-gray-400' : 'bg-gray-900'
+              }`}
               onPress={handleRegister}
               activeOpacity={0.8}
+              disabled={isSubmitting}
             >
               <Text className="text-white text-center font-semibold text-base">
-                Registrarse
+                {isSubmitting ? 'Registrando...' : 'Registrarse'}
               </Text>
             </TouchableOpacity>
 
             <View className="flex-row justify-center items-center mt-6">
               <Text className="text-gray-600 text-sm">¿Ya tienes cuenta? </Text>
               <Link href="/(auth)/login" asChild>
-                <TouchableOpacity>
+                <TouchableOpacity disabled={isSubmitting}>
                   <Text className="text-gray-900 font-semibold text-sm">Inicia sesión</Text>
                 </TouchableOpacity>
               </Link>
