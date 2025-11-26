@@ -1,85 +1,139 @@
 import "@/global.css";
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { useTasks } from "../../lib/context/TaskContext";
-import EditTaskModal from "../../components/EditTaskModal";
+import { View, Text, ScrollView } from "react-native";
+import { useState } from "react";
+import { useTasks, Task } from "@/lib/context/TaskContext";
 
-export default function TaskScreen() {
-  const { tasks, deleteTask, updateTask } = useTasks();
+import TaskCard from "@/components/tasks/TaskCard";
+import ProgressBar from "@/components/tasks/ProgressBar";
+import ModalWrapper from "@/components/ui/ModalWrapper";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
-  const [editingTask, setEditingTask] = useState<any | null>(null);
+export default function HomeScreen() {
+  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+
+  // Estados para modal de crear/editar
   const [modalVisible, setModalVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const completedCount = tasks.filter(t => t.completed).length;
-  const progress = tasks.length === 0 ? 0 : (completedCount / tasks.length) * 100;
+  // Inputs del formulario
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  // Abrir modal para EDITAR
+  const openEdit = (task: Task) => {
+    setEditingTask(task);
+    setTitle(task.title);
+    setDescription(task.description);
+    setModalVisible(true);
+  };
+
+  // Abrir modal para CREAR
+  const openCreate = () => {
+    setEditingTask(null);
+    setTitle("");
+    setDescription("");
+    setModalVisible(true);
+  };
+
+  // Guardar cambios o crear tarea
+  const handleSave = async () => {
+    if (editingTask) {
+      await updateTask(editingTask.id, {
+        title,
+        description,
+      });
+    } else {
+      await addTask({
+        title,
+        description,
+        completed: false,
+      });
+    }
+
+    setModalVisible(false);
+    setTitle("");
+    setDescription("");
+    setEditingTask(null);
+  };
+
+  // Cálculo de progreso
+  const progress =
+    tasks.length === 0
+      ? 0
+      : tasks.filter((t) => t.completed).length / tasks.length;
 
   return (
     <View className="flex-1 bg-white p-4">
 
-      {/* Progreso */}
-      <Text className="text-xl font-bold mb-2">Progreso</Text>
-      <Text className="text-gray-600 mb-4">{completedCount} completadas de {tasks.length}</Text>
+      {/* HEADER */}
+      <Text className="text-3xl font-bold mb-2">Tus tareas</Text>
 
-      <View className="w-full h-3 bg-gray-200 rounded-full mb-5">
-        <View
-          style={{ width: `${progress}%` }}
-          className="h-full bg-green-500 rounded-full"
-        />
-      </View>
+      {/* PROGRESO */}
+      <ProgressBar progress={progress} />
 
-      <ScrollView className="flex-1">
+      <Text className="mt-2 mb-4 text-gray-600">
+        {tasks.filter((t) => t.completed).length} completadas de {tasks.length}
+      </Text>
 
-        {tasks.map((task) => (
-          <View
-            key={task.id}
-            className="bg-gray-100 p-4 rounded-xl mb-4"
-          >
-            <Text className="text-lg font-bold">{task.title}</Text>
-            <Text className="text-gray-700 mb-3">{task.description}</Text>
+      {/* BOTÓN CREAR */}
+      <Button label="Crear tarea" onPress={openCreate} className="mb-4" />
 
-            <View className="flex-row gap-3">
-
-              {/* Botón completar */}
-              <TouchableOpacity
-                onPress={() => updateTask(task.id, { completed: !task.completed })}
-                className={`px-3 py-2 rounded ${task.completed ? "bg-green-600" : "bg-blue-600"}`}
-              >
-                <Text className="text-white font-semibold">
-                  {task.completed ? "Completada" : "Completar"}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Botón editar */}
-              <TouchableOpacity
-                onPress={() => {
-                  setEditingTask(task);
-                  setModalVisible(true);
-                }}
-                className="px-3 py-2 rounded bg-yellow-500"
-              >
-                <Text className="text-white font-semibold">Editar</Text>
-              </TouchableOpacity>
-
-              {/* Botón eliminar */}
-              <TouchableOpacity
-                onPress={() => deleteTask(task.id)}
-                className="px-3 py-2 rounded bg-red-600"
-              >
-                <Text className="text-white font-semibold">Eliminar</Text>
-              </TouchableOpacity>
-
-            </View>
-          </View>
-        ))}
-
+      {/* LISTA DE TAREAS */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {tasks.length === 0 ? (
+          <Text className="text-center text-gray-500 mt-10">
+            No hay tareas aún
+          </Text>
+        ) : (
+          tasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onToggle={() =>
+                updateTask(task.id, { completed: !task.completed })
+              }
+              onEdit={() => openEdit(task)}
+              onDelete={() => deleteTask(task.id)}
+            />
+          ))
+        )}
       </ScrollView>
 
-      {/* Modal de edición */}
-      <EditTaskModal
-        visible={modalVisible}
-        task={editingTask}
-        onClose={() => setModalVisible(false)}
-      />
+      {/* MODAL CREAR/EDITAR */}
+      <ModalWrapper visible={modalVisible}>
+        <Text className="text-xl font-bold mb-3">
+          {editingTask ? "Editar tarea" : "Nueva tarea"}
+        </Text>
+
+        <Input
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Título"
+          className="mb-3"
+        />
+
+        <Input
+          value={description}
+          onChangeText={setDescription}
+          placeholder="Descripción"
+          multiline
+          className="mb-3"
+        />
+
+        <Button
+          label={editingTask ? "Guardar cambios" : "Crear tarea"}
+          onPress={handleSave}
+          variant="primary"
+        />
+
+        <Button
+          label="Cancelar"
+          onPress={() => setModalVisible(false)}
+          variant="secondary"
+          className="mt-2"
+        />
+      </ModalWrapper>
     </View>
   );
 }

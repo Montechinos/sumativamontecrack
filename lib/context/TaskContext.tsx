@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 
-interface Task {
+// 👉 AHORA exportamos Task para poder usarlo en otras pantallas
+export interface Task {
   id: string;
   title: string;
   description: string;
@@ -8,7 +9,7 @@ interface Task {
   createdAt: string;
 }
 
-interface TaskContextType {
+export interface TaskContextType {
   tasks: Task[];
   getTasks: () => Promise<void>;
   addTask: (task: Omit<Task, "id" | "createdAt">) => Promise<void>;
@@ -22,12 +23,10 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  // 👉 SIN API: Solo devolvemos las tareas actuales
   const getTasks = async () => {
-    return; // no hace nada, usamos estado local
+    return;
   };
 
-  // 👉 Crear tarea local
   const addTask = async (taskData: Omit<Task, "id" | "createdAt">) => {
     const newTask: Task = {
       id: Date.now().toString(),
@@ -40,19 +39,16 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     setTasks((prev) => [...prev, newTask]);
   };
 
-  // 👉 Actualizar tarea local
   const updateTask = async (id: string, data: Partial<Task>) => {
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, ...data } : t))
     );
   };
 
-  // 👉 Eliminar tarea local
   const deleteTask = async (id: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // 👉 Para usar cuando cierre sesión
   const clearTasks = () => setTasks([]);
 
   return (
@@ -66,6 +62,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
 export function useTasks() {
   const context = useContext(TaskContext);
-  if (!context) throw new Error("useTasks debe usarse dentro de un TaskProvider");
+  if (!context)
+    throw new Error("useTasks debe usarse dentro de un TaskProvider");
   return context;
 }
