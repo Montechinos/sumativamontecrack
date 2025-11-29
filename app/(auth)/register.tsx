@@ -1,80 +1,74 @@
-import { useAuth } from "@/lib/context/AuthContext";
-import { RegisterSchema } from "@/lib/schemas/AuthSchema";
-import { router } from "expo-router";
 import React, { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import Input from "@/components/ui/Input";
+import { router } from "expo-router";
+import { useAuth } from "@/lib/context/AuthContext";
+import {registerSchema} from "@/lib/schemas/registerSchema";
 
-export default function RegisterScreen() {
-  const { login } = useAuth();
-
-  const [name, setName] = useState("");
+export default function Register() {
+  const { register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [issues, setIssues] = useState<any>({});
 
   const handleRegister = async () => {
-    setErrors({});
+    const validation = registerSchema.safeParse({ email, password });
 
-    const result = RegisterSchema.safeParse({
-      name,
-      email,
-      password,
-    });
-
-    if (!result.success) {
-      const newErrors: any = {};
-
-      result.error.issues.forEach((issue) => {
-        const field = issue.path[0];
-        newErrors[field] = issue.message;
-      });
-
-      setErrors(newErrors);
+    if (!validation.success) {
+      setIssues(validation.error.flatten().fieldErrors);
       return;
     }
 
-    // Simular registro → loguear automáticamente
-    login(result.data.email,result.data.password);
-    router.replace("/(tabs)");
+    try {
+      await register(email, password);
+      router.replace("/(tabs)");
+    } catch {
+      setIssues({ general: "Error creando cuenta" });
+    }
   };
 
   return (
-    <View className="p-6">
-      <Text className="text-2xl font-bold mb-6">Crear Cuenta</Text>
+    <View className="flex-1 justify-center px-8 bg-white">
+      <Text className="text-3xl font-bold text-blue-600 mb-6">Registro</Text>
 
-      <TextInput
-        className="border rounded-xl p-3 mb-2"
-        placeholder="Nombre"
-        value={name}
-        onChangeText={setName}
-      />
-      {errors.name && <Text className="text-red-500">{errors.name}</Text>}
-
-      <TextInput
-        className="border rounded-xl p-3 mt-3"
+      <Input
         placeholder="Correo"
         value={email}
         onChangeText={setEmail}
+        className="mb-2"
       />
-      {errors.email && <Text className="text-red-500">{errors.email}</Text>}
+      {issues.email && (
+        <Text className="text-red-500 mb-2 text-sm">{issues.email}</Text>
+      )}
 
-      <TextInput
-        className="border rounded-xl p-3 mt-3"
+      <Input
         placeholder="Contraseña"
-        secureTextEntry
         value={password}
         onChangeText={setPassword}
+        className="mb-2"
+        secureTextEntry
       />
-      {errors.password && (
-        <Text className="text-red-500">{errors.password}</Text>
+      {issues.password && (
+        <Text className="text-red-500 mb-2 text-sm">{issues.password}</Text>
+      )}
+
+      {issues.general && (
+        <Text className="text-red-500 mb-2 text-sm">{issues.general}</Text>
       )}
 
       <TouchableOpacity
-        className="bg-black p-4 rounded-xl mt-6"
         onPress={handleRegister}
+        className="bg-blue-600 p-3 rounded-lg mt-4"
       >
-        <Text className="text-white text-center font-semibold">
-          Registrarse
+        <Text className="text-white text-center font-semibold">Crear cuenta</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => router.push("/(auth)/login")}
+        className="mt-4"
+      >
+        <Text className="text-blue-600 text-center">
+          Ya tienes cuenta? Inicia sesión
         </Text>
       </TouchableOpacity>
     </View>

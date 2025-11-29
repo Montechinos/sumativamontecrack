@@ -6,12 +6,14 @@ interface InputProps {
   placeholder?: string;
   className?: string;
   multiline?: boolean;
+  secureTextEntry?: boolean; // 🔥 AÑADIDO
 }
 
 export default function Input({
   value,
   onChangeText,
   placeholder,
+  secureTextEntry = false,
   multiline = false,
   className,
 }: InputProps) {
@@ -20,8 +22,11 @@ export default function Input({
       value={value}
       onChangeText={onChangeText}
       placeholder={placeholder}
+      secureTextEntry={secureTextEntry} // 🔥 ahora sí funciona
       multiline={multiline}
-      className={`border border-gray-300 rounded-xl p-3 text-base ${multiline ? "h-24" : ""} ${className}`}
+      className={`border border-gray-300 rounded-xl p-3 text-base ${
+        multiline ? "h-24" : ""
+      } ${className}`}
       placeholderTextColor="#999"
     />
   );

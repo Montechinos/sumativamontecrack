@@ -1,17 +1,10 @@
 {
   "tasks": [
     {
-      "id": "1",
-      "title": "Terminar informe mensual",
-      "description": "Preparar el informe con los datos de enero",
-      "completed": false,
-      "createdAt": "2025-11-26T10:00:00Z"
-    },
-    {
       "id": "2",
       "title": "Comprar materiales",
       "description": "Comprar cartulinas y marcadores",
-      "completed": true,
+      "completed": false,
       "createdAt": "2025-11-26T11:00:00Z"
     },
     {
@@ -20,6 +13,13 @@
       "description": "nivelo",
       "completed": false,
       "createdAt": "2025-11-26T21:40:54.186Z"
+    },
+    {
+      "id": "dd9d",
+      "title": "ostia",
+      "description": "aWDAWdaWD",
+      "completed": false,
+      "createdAt": "2025-11-29T02:45:32.421Z"
     }
   ],
   "profile": {
