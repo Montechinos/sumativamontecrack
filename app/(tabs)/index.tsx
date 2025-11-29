@@ -10,36 +10,37 @@ import TaskCard from "@/components/tasks/TaskCard";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ModalWrapper from "@/components/ui/ModalWrapper";
+import SmartTaskCreator from "@/components/ai/SmartTaskCreator";
+import { useAI } from "@/lib/context/AIContext";
 
 export default function HomeScreen() {
   const { tasks, addTask, updateTask, deleteTask } = useTasks();
   const { logout } = useAuth();
+  const { analyzeTaskPriority, isLoading: aiLoading } = useAI();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [showAICreator, setShowAICreator] = useState(false);
+  const [priorityAnalysis, setPriorityAnalysis] = useState<string | null>(null);
 
   // LOGOUT REAL → VA A LOGIN
   const handleLogout = () => {
-    if(Platform.OS == "web"){
+    if (Platform.OS === "web") {
       router.replace("/login");
-    }else{
-      Alert.alert(
-        "Cerrar Sesión",
-        "¿Seguro que deseas salir?",
-        [
-          { text: "Cancelar", style: "cancel" },
-          {
-            text: "Salir",
-            style: "destructive",
-            onPress: () => {
-              logout(); // Limpia sesión
-              router.replace("/login"); // ⬅️ navega al login REAL
-            },
+    } else {
+      Alert.alert("Cerrar Sesión", "¿Seguro que deseas salir?", [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Salir",
+          style: "destructive",
+          onPress: () => {
+            logout();
+            router.replace("/login");
           },
-        ]
-      );
+        },
+      ]);
     }
   };
 
@@ -70,15 +71,43 @@ export default function HomeScreen() {
     setEditingTask(null);
   };
 
+  // Analizar prioridades con IA
+  const handleAnalyzePriority = async () => {
+    if (tasks.length === 0) {
+      Alert.alert("Sin tareas", "No hay tareas para analizar");
+      return;
+    }
+
+    try {
+      const analysis = await analyzeTaskPriority(tasks);
+      setPriorityAnalysis(analysis);
+    } catch (error) {
+      console.error('Error al analizar prioridades:', error);
+      Alert.alert('Error', 'No se pudo analizar. Verifica tu API Key.');
+    }
+  };
+
+  // Crear subtarea desde el modal de IA
+  const handleCreateSubtask = async (subtaskText: string) => {
+    try {
+      await addTask({
+        title: subtaskText.slice(0, 50),
+        description: subtaskText,
+        completed: false,
+      });
+
+      Alert.alert("✅", "Subtarea creada");
+    } catch (error) {
+      console.error('Error al crear subtarea:', error);
+    }
+  };
+
   const progress =
-    tasks.length === 0
-      ? 0
-      : tasks.filter((t) => t.completed).length / tasks.length;
+    tasks.length === 0 ? 0 : tasks.filter((t) => t.completed).length / tasks.length;
 
   return (
     <View className="flex-1 bg-white p-4">
-
-      {/* 🔥 BOTÓN SALIR FUERA DE CABECERA */}
+      {/* Botón Salir */}
       <TouchableOpacity
         onPress={handleLogout}
         className="self-end mb-4 px-4 py-2 bg-gray-100 rounded-lg"
@@ -95,7 +124,54 @@ export default function HomeScreen() {
         {tasks.filter((t) => t.completed).length} completadas de {tasks.length}
       </Text>
 
-      <Button label="Crear tarea" onPress={openCreate} className="mb-4" />
+      {/* Botones de acción */}
+      <View className="flex-row gap-2 mb-4">
+        <Button
+          label="➕ Crear Manual"
+          onPress={openCreate}
+          className="flex-1"
+          variant="primary"
+        />
+
+        <TouchableOpacity
+          onPress={() => setShowAICreator(!showAICreator)}
+          className="flex-1 bg-purple-600 py-3 rounded-xl"
+        >
+          <Text className="text-white text-center font-bold">
+            {showAICreator ? "✕ Cerrar IA" : "🤖 Crear con IA"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Smart Task Creator */}
+      {showAICreator && (
+        <View className="mb-4">
+          <SmartTaskCreator onSuccess={() => setShowAICreator(false)} />
+        </View>
+      )}
+
+      {/* Análisis de prioridades */}
+      {tasks.length > 0 && (
+        <TouchableOpacity
+          onPress={handleAnalyzePriority}
+          className="bg-orange-100 p-3 rounded-xl mb-4"
+          disabled={aiLoading}
+        >
+          <Text className="text-orange-700 font-semibold text-center">
+            {aiLoading ? "Analizando..." : "📊 Analizar Prioridades con IA"}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {priorityAnalysis && (
+        <View className="bg-yellow-50 p-4 rounded-xl mb-4 border border-yellow-200">
+          <Text className="font-bold text-yellow-800 mb-2">💡 Análisis de IA:</Text>
+          <Text className="text-yellow-900">{priorityAnalysis}</Text>
+          <TouchableOpacity onPress={() => setPriorityAnalysis(null)} className="mt-2">
+            <Text className="text-yellow-700 text-xs">✕ Cerrar</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {tasks.length === 0 ? (
@@ -108,6 +184,7 @@ export default function HomeScreen() {
               onToggle={() => updateTask(task.id, { completed: !task.completed })}
               onEdit={() => openEdit(task)}
               onDelete={() => deleteTask(task.id)}
+              onCreateSubtask={handleCreateSubtask}
             />
           ))
         )}
@@ -118,12 +195,7 @@ export default function HomeScreen() {
           {editingTask ? "Editar tarea" : "Nueva tarea"}
         </Text>
 
-        <Input
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Título"
-          className="mb-3"
-        />
+        <Input value={title} onChangeText={setTitle} placeholder="Título" className="mb-3" />
 
         <Input
           value={description}
