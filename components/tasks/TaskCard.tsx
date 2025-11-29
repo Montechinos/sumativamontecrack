@@ -28,7 +28,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete, onCreateSub
             onPress={() => setShowAIModal(true)}
             className="bg-purple-500 w-10 h-10 rounded-full items-center justify-center ml-2"
           >
-            <Text className="text-white text-xl">🤖</Text>
+            <Text className="text-white text-xl">IA</Text>
           </TouchableOpacity>
         </View>
 
@@ -40,7 +40,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete, onCreateSub
             }`}
           >
             <Text className="text-white text-center font-semibold">
-              {task.completed ? "✓ Completado" : "⏳ Pendiente"}
+              {task.completed ? "✓ Completado" : " Pendiente"}
             </Text>
           </TouchableOpacity>
 

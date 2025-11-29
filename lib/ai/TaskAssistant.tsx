@@ -74,14 +74,14 @@ Pregunta del usuario: ${text}
       completed: false,
     });
 
-    alert("Tarea creada con la respuesta de la IA ✔️");
+    alert("Tarea creada con la respuesta de la IA ");
   };
 
   return (
     <View className="bg-white p-4 mt-4 border-t-2 border-gray-300 rounded-lg">
 
       <Text className="text-xl font-black text-gray-900 mb-3">
-        🤖 Asistente IA de Tareas
+         Asistente IA de Tareas
       </Text>
 
       {/* Preguntas rápidas */}
@@ -136,7 +136,7 @@ Pregunta del usuario: ${text}
       {/* Error */}
       {error !== "" && (
         <View className="bg-red-100 p-3 rounded-lg border border-red-300 mb-3">
-          <Text className="text-red-700 font-bold">❌ {error}</Text>
+          <Text className="text-red-700 font-bold"> {error}</Text>
         </View>
       )}
 

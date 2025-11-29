@@ -76,7 +76,7 @@ export default function AIAssistantModal({ visible, onClose, task, onCreateSubta
         <View className="bg-white rounded-t-3xl p-6 max-h-[80%]">
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-2xl font-bold">🤖 Asistente IA</Text>
+            <Text className="text-2xl font-bold"> Asistente IA</Text>
             <TouchableOpacity onPress={handleClose}>
               <Text className="text-gray-500 text-xl font-bold">✕</Text>
             </TouchableOpacity>
@@ -101,7 +101,7 @@ export default function AIAssistantModal({ visible, onClose, task, onCreateSubta
                   activeTab === 'suggestions' ? 'text-white' : 'text-gray-700'
                 }`}
               >
-                💡 Sugerencias
+                 Sugerencias
               </Text>
             </TouchableOpacity>
 
@@ -116,7 +116,7 @@ export default function AIAssistantModal({ visible, onClose, task, onCreateSubta
                   activeTab === 'subtasks' ? 'text-white' : 'text-gray-700'
                 }`}
               >
-                📋 Subtareas
+                 Subtareas
               </Text>
             </TouchableOpacity>
           </View>

@@ -48,7 +48,7 @@ export default function SmartTaskCreator({ onSuccess }: Props) {
         completed: false,
       });
 
-      Alert.alert('✅ Tarea creada', 'La IA generó tu tarea exitosamente');
+      Alert.alert('Tarea creada', 'La IA generó tu tarea exitosamente');
       setPrompt('');
       setPreview(null);
       onSuccess?.();
@@ -65,7 +65,7 @@ export default function SmartTaskCreator({ onSuccess }: Props) {
 
   return (
     <View className="bg-gradient-to-br from-purple-50 to-blue-50 p-5 rounded-2xl">
-      <Text className="text-2xl font-bold mb-1">✨ Crear con IA</Text>
+      <Text className="text-2xl font-bold mb-1"> Crear con IA</Text>
       <Text className="text-gray-600 mb-4 text-sm">
         Describe lo que necesitas hacer en lenguaje natural
       </Text>
@@ -118,7 +118,7 @@ export default function SmartTaskCreator({ onSuccess }: Props) {
           className="bg-purple-600 py-4 rounded-xl"
           disabled={!prompt.trim()}
         >
-          <Text className="text-white text-center font-bold">🤖 Generar con IA</Text>
+          <Text className="text-white text-center font-bold"> Generar con IA</Text>
         </TouchableOpacity>
       )}
     </View>

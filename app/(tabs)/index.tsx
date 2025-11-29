@@ -96,7 +96,7 @@ export default function HomeScreen() {
         completed: false,
       });
 
-      Alert.alert("✅", "Subtarea creada");
+      Alert.alert("Subtarea creada");
     } catch (error) {
       console.error('Error al crear subtarea:', error);
     }
@@ -127,7 +127,7 @@ export default function HomeScreen() {
       {/* Botones de acción */}
       <View className="flex-row gap-2 mb-4">
         <Button
-          label="➕ Crear Manual"
+          label=" Crear Manual"
           onPress={openCreate}
           className="flex-1"
           variant="primary"
@@ -138,7 +138,7 @@ export default function HomeScreen() {
           className="flex-1 bg-purple-600 py-3 rounded-xl"
         >
           <Text className="text-white text-center font-bold">
-            {showAICreator ? "✕ Cerrar IA" : "🤖 Crear con IA"}
+            {showAICreator ? "✕ Cerrar IA" : " Crear con IA"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -158,14 +158,14 @@ export default function HomeScreen() {
           disabled={aiLoading}
         >
           <Text className="text-orange-700 font-semibold text-center">
-            {aiLoading ? "Analizando..." : "📊 Analizar Prioridades con IA"}
+            {aiLoading ? "Analizando..." : " Analizar Prioridades con IA"}
           </Text>
         </TouchableOpacity>
       )}
 
       {priorityAnalysis && (
         <View className="bg-yellow-50 p-4 rounded-xl mb-4 border border-yellow-200">
-          <Text className="font-bold text-yellow-800 mb-2">💡 Análisis de IA:</Text>
+          <Text className="font-bold text-yellow-800 mb-2"> Análisis de IA:</Text>
           <Text className="text-yellow-900">{priorityAnalysis}</Text>
           <TouchableOpacity onPress={() => setPriorityAnalysis(null)} className="mt-2">
             <Text className="text-yellow-700 text-xs">✕ Cerrar</Text>
