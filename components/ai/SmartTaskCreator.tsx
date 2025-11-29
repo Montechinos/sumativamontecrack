@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useAI } from '@/lib/context/AIContext';
 import { useTasks } from '@/lib/context/TaskContext';
+import { useTheme } from '@/lib/context/ThemeContext';
 
 interface Props {
   onSuccess?: () => void;
@@ -17,11 +18,11 @@ interface Props {
 export default function SmartTaskCreator({ onSuccess }: Props) {
   const { createTaskFromPrompt, isLoading } = useAI();
   const { addTask } = useTasks();
+  const { currentTheme } = useTheme();
 
   const [prompt, setPrompt] = useState('');
   const [preview, setPreview] = useState<{ title: string; description: string } | null>(null);
 
-  // Generar preview de la tarea
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       Alert.alert('Error', 'Escribe algo para generar la tarea');
@@ -37,7 +38,6 @@ export default function SmartTaskCreator({ onSuccess }: Props) {
     }
   };
 
-  // Crear la tarea final
   const handleCreate = async () => {
     if (!preview) return;
 
@@ -64,16 +64,30 @@ export default function SmartTaskCreator({ onSuccess }: Props) {
   };
 
   return (
-    <View className="bg-gradient-to-br from-purple-50 to-blue-50 p-5 rounded-2xl">
-      <Text className="text-2xl font-bold mb-1"> Crear con IA</Text>
-      <Text className="text-gray-600 mb-4 text-sm">
+    <View
+      style={{
+        backgroundColor: currentTheme.colors.ai + '20',
+        borderColor: currentTheme.colors.ai,
+      }}
+      className="p-5 rounded-2xl border"
+    >
+      <Text style={{ color: currentTheme.colors.text }} className="text-2xl font-bold mb-1">
+        Crear con IA
+      </Text>
+      <Text style={{ color: currentTheme.colors.textSecondary }} className="mb-4 text-sm">
         Describe lo que necesitas hacer en lenguaje natural
       </Text>
 
       {/* Input de prompt */}
       <TextInput
-        className="bg-white p-4 rounded-xl border border-gray-200 mb-3"
+        style={{
+          backgroundColor: currentTheme.colors.surface,
+          color: currentTheme.colors.text,
+          borderColor: currentTheme.colors.border,
+        }}
+        className="p-4 rounded-xl border mb-3"
         placeholder="Ej: Necesito preparar una presentación para el lunes..."
+        placeholderTextColor={currentTheme.colors.textSecondary}
         value={prompt}
         onChangeText={setPrompt}
         multiline
@@ -83,42 +97,61 @@ export default function SmartTaskCreator({ onSuccess }: Props) {
 
       {/* Preview de tarea generada */}
       {preview && (
-        <View className="bg-white p-4 rounded-xl border-2 border-purple-300 mb-3">
-          <Text className="text-xs font-semibold text-purple-600 mb-2">VISTA PREVIA</Text>
-          <Text className="font-bold text-lg mb-1">{preview.title}</Text>
-          <Text className="text-gray-600">{preview.description}</Text>
+        <View
+          style={{
+            backgroundColor: currentTheme.colors.surface,
+            borderColor: currentTheme.colors.ai,
+          }}
+          className="p-4 rounded-xl border-2 mb-3"
+        >
+          <Text style={{ color: currentTheme.colors.ai }} className="text-xs font-semibold mb-2">
+            VISTA PREVIA
+          </Text>
+          <Text style={{ color: currentTheme.colors.text }} className="font-bold text-lg mb-1">
+            {preview.title}
+          </Text>
+          <Text style={{ color: currentTheme.colors.textSecondary }}>{preview.description}</Text>
         </View>
       )}
 
       {/* Botones */}
       {isLoading ? (
         <View className="items-center py-4">
-          <ActivityIndicator size="large" color="#8b5cf6" />
-          <Text className="text-gray-500 mt-2">Generando tarea...</Text>
+          <ActivityIndicator size="large" color={currentTheme.colors.ai} />
+          <Text style={{ color: currentTheme.colors.textSecondary }} className="mt-2">
+            Generando tarea...
+          </Text>
         </View>
       ) : preview ? (
         <View className="flex-row gap-2">
           <TouchableOpacity
             onPress={handleCreate}
-            className="flex-1 bg-green-500 py-3 rounded-xl"
+            style={{ backgroundColor: currentTheme.colors.success }}
+            className="flex-1 py-3 rounded-xl"
           >
             <Text className="text-white text-center font-bold">✓ Crear Tarea</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleCancel}
-            className="flex-1 bg-gray-300 py-3 rounded-xl"
+            style={{ backgroundColor: currentTheme.colors.secondary }}
+            className="flex-1 py-3 rounded-xl"
           >
-            <Text className="text-gray-700 text-center font-bold">Cancelar</Text>
+            <Text style={{ color: currentTheme.colors.text }} className="text-center font-bold">
+              Cancelar
+            </Text>
           </TouchableOpacity>
         </View>
       ) : (
         <TouchableOpacity
           onPress={handleGenerate}
-          className="bg-purple-600 py-4 rounded-xl"
+          style={{ backgroundColor: currentTheme.colors.ai }}
+          className="py-4 rounded-xl"
           disabled={!prompt.trim()}
         >
-          <Text className="text-white text-center font-bold"> Generar con IA</Text>
+          <Text style={{ color: currentTheme.colors.aiText }} className="text-center font-bold">
+            Generar con IA
+          </Text>
         </TouchableOpacity>
       )}
     </View>
